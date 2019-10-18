@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { Route } from 'react-router-dom'
 import AddBookmark from './AddBookmark/AddBookmark';
 import BookmarkList from './BookmarkList/BookmarkList';
 import Nav from './Nav/Nav';
 import config from './config';
 import './App.css';
-
+const API_KEY = '2a$10$ZhdeJefcb.5sx/DCmO/n8u5sJLcARAdbHw9tfm1mevGRq3s1.5DpW'
 const bookmarks = [
   // {
   //   id: 0,
@@ -31,20 +32,16 @@ const bookmarks = [
 
 class App extends Component {
   state = {
-    page: 'list',
     bookmarks,
     error: null,
   };
 
-  changePage = (page) => {
-    this.setState({ page })
-  }
+
 
   setBookmarks = bookmarks => {
     this.setState({
       bookmarks,
       error: null,
-      page: 'list',
     })
   }
 
@@ -59,7 +56,7 @@ class App extends Component {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
-        'Authorization': `Bearer ${config.API_KEY}`
+        'Authorization': `Bearer ${API_KEY}`
       }
     })
       .then(res => {
@@ -73,23 +70,30 @@ class App extends Component {
   }
 
   render() {
-    const { page, bookmarks } = this.state
+    const { bookmarks } = this.state
     return (
       <main className='App'>
         <h1>Bookmarks!</h1>
-        <Nav clickPage={this.changePage} />
+        <Nav />
         <div className='content' aria-live='polite'>
-          {page === 'add' && (
-            <AddBookmark
-              onAddBookmark={this.addBookmark}
-              onClickCancel={() => this.changePage('list')}
-            />
-          )}
-          {page === 'list' && (
-            <BookmarkList
-              bookmarks={bookmarks}
-            />
-          )}
+          <Route 
+            path="/add-bookmark"
+            render={({ history }) => {
+              console.log(history)
+              return <AddBookmark 
+                onAddBookmark={this.addBookmark}
+                onClickCancel={() => history.push('/')}
+                />
+            }}
+          />
+          <Route 
+            exact path="/"
+            render={() => 
+              <BookmarkList 
+                bookmarks={bookmarks}  
+              />
+            }
+          />
         </div>
       </main>
     );
